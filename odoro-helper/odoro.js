@@ -1,6 +1,6 @@
-// Odoro Helper — גרסת סימנייה (Bookmarklet). נבנה אוטומטית מתוך התוסף.
+// Odoro Helper 1.5.0 — גרסת סימנייה. נבנה אוטומטית מתוך התוסף.
 // לא מכיל מידע על מטופלים. רץ רק בדפדפן של המשתמש, בתוך אודורו, בחיבור שלו.
-(function(){if(window.__odoroHelperLoaded)return;if(!/(^|\.)odoro\.co\.il$/.test(location.hostname)){alert("הסימנייה עובדת רק בתוך אתר אודורו");return;}window.__ohBookmarklet=true;var s=document.createElement("style");s.id="oh-style";s.textContent=".oh-toggle {\n  position: fixed; top: 8px; left: 12px; z-index: 2147483000;\n  background: #1f6f43; color: #fff; border: 0; border-radius: 18px;\n  padding: 6px 14px; font: bold 13px Arial, sans-serif; cursor: pointer;\n  box-shadow: 0 2px 6px rgba(0,0,0,.25);\n}\n.oh-panel {\n  position: fixed; top: 44px; left: 12px; z-index: 2147483000;\n  width: 380px; max-height: 82vh; overflow-y: auto;\n  background: #fff; color: #222; direction: rtl; text-align: right;\n  font: 13px Arial, sans-serif; border-radius: 10px;\n  box-shadow: 0 6px 24px rgba(0,0,0,.25); border: 1px solid #ccc;\n}\n.oh-hidden { display: none !important; }\n.oh-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: #1f6f43; color: #fff; font-weight: bold; border-radius: 10px 10px 0 0; }\n.oh-x { background: none; border: 0; color: #fff; font-size: 20px; cursor: pointer; line-height: 1; }\n.oh-tabs { display: flex; border-bottom: 1px solid #ddd; }\n.oh-tab { flex: 1; padding: 8px; border: 0; background: #f4f4f4; cursor: pointer; font: 13px Arial, sans-serif; }\n.oh-tab.oh-active { background: #fff; font-weight: bold; border-bottom: 2px solid #1f6f43; }\n.oh-body { padding: 10px 12px; }\n.oh-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 6px 0; }\n.oh-time-pick { display: inline-flex; align-items: center; gap: 2px; font-weight: bold; }\n.oh-tsel { width: auto !important; padding: 1px 2px; margin: 0; height: auto; font: 13px Arial, sans-serif; }\n.oh-chip { border: 1px solid #1f6f43; color: #1f6f43; background: #fff; border-radius: 12px; padding: 2px 10px; cursor: pointer; font-size: 12px; }\n.oh-chip:hover { background: #e9f5ee; }\n.oh-hint { color: #555; font-size: 12px; margin-bottom: 4px; }\n.oh-list { border: 1px solid #e3e3e3; border-radius: 6px; max-height: 260px; overflow-y: auto; padding: 4px 6px; margin: 6px 0; }\n.oh-item { display: flex; gap: 6px; align-items: center; padding: 3px 0; border-bottom: 1px solid #f1f1f1; cursor: pointer; margin: 0; font-size: 13px; }\n.oh-item input { margin: 0; }\n.oh-time { font-weight: bold; min-width: 40px; }\n.oh-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\n.oh-st { font-size: 11px; padding: 1px 6px; border-radius: 8px; background: #eee; white-space: nowrap; }\n.oh-st-sent { background: #d9f2df; color: #1d6b33; }\n.oh-st-confirmed { background: #d6e8fb; color: #1a4f8a; }\n.oh-st-pending { background: #eee; color: #555; }\n.oh-warn { font-size: 11px; color: #b00; }\n.oh-empty { color: #777; padding: 8px 0; }\n.oh-select { width: 100%; margin: 0; }\n.oh-text { width: 100%; box-sizing: border-box; font: 13px Arial, sans-serif; direction: rtl; }\n.oh-preview { font-size: 12px; color: #444; background: #fafafa; border-radius: 6px; padding: 4px 6px; margin: 4px 0; white-space: pre-wrap; }\n.oh-preview:empty { display: none; }\n.oh-primary { width: 100%; margin-top: 6px; padding: 8px; background: #1f6f43; color: #fff; border: 0; border-radius: 6px; font: bold 14px Arial, sans-serif; cursor: pointer; }\n.oh-primary:disabled { opacity: .5; cursor: default; }\n.oh-log { font-size: 12px; max-height: 160px; overflow-y: auto; margin-top: 6px; }\n.oh-log:empty { display: none; }\n.oh-good { color: #1d6b33; font-weight: bold; }\n.oh-bad { color: #b00; }\n/* תיבות סימון ביומן ופס פעולות */\ninput.oh-rowcb { margin: 0 0 0 6px !important; vertical-align: middle; cursor: pointer; width: 15px; height: 15px; }\n.oh-bar {\n  position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); z-index: 2147483000;\n  width: min(460px, calc(100vw - 32px)); direction: rtl; text-align: right;\n  background: #fff; border: 2px solid #1f6f43; border-radius: 12px; padding: 8px 10px;\n  box-shadow: 0 6px 24px rgba(0,0,0,.3); font: 13px Arial, sans-serif; color: #222;\n}\n.oh-bar-top { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }\n.oh-bar-count { font-weight: bold; margin-left: auto; }\n.oh-bar-btn { border: 0; border-radius: 6px; padding: 6px 10px; cursor: pointer; font: bold 13px Arial, sans-serif; color: #fff; }\n.oh-bar-btn:disabled { opacity: .5; }\n.oh-bar-wa { background: #25a35a; }\n.oh-bar-sms { background: #2a6db0; }\n.oh-bar-clear { background: #eee; color: #333; font-weight: normal; }\n.oh-bar-smsbox { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }\n.oh-bar-smsbox.oh-hidden { display: none !important; }\n\n/* מסך טלפון */\n@media (max-width: 760px) {\n  .oh-toggle { top: auto; bottom: 14px; left: 14px; padding: 10px 16px; font-size: 15px; }\n  .oh-panel { top: 8px; left: 8px; right: 8px; width: auto; max-height: calc(100vh - 80px); font-size: 15px; }\n  .oh-tab { padding: 12px; font-size: 15px; }\n  .oh-chip { padding: 7px 12px; font-size: 14px; }\n  .oh-item { padding: 9px 0; font-size: 15px; }\n  .oh-item input { width: 20px; height: 20px; }\n  .oh-tsel, .oh-select, .oh-text { font-size: 16px !important; padding: 6px 4px !important; }\n  .oh-primary { padding: 12px; font-size: 16px; }\n  input.oh-rowcb { width: 22px; height: 22px; margin-left: 8px !important; }\n  .oh-bar { bottom: 8px; width: calc(100vw - 16px); padding: 10px; font-size: 15px; }\n  .oh-bar-btn { padding: 10px 12px; font-size: 15px; }\n}\n";document.head.appendChild(s);})();
+(function(){if(window.__odoroHelperLoaded)return;if(!/(^|\.)odoro\.co\.il$/.test(location.hostname)){alert("הסימנייה עובדת רק בתוך אתר אודורו");return;}window.__ohBookmarklet=true;var s=document.createElement("style");s.id="oh-style";s.textContent=".oh-toggle {\n  position: fixed; top: 8px; left: 12px; z-index: 2147483000;\n  background: #1f6f43; color: #fff; border: 0; border-radius: 18px;\n  padding: 6px 14px; font: bold 13px Arial, sans-serif; cursor: pointer;\n  box-shadow: 0 2px 6px rgba(0,0,0,.25);\n}\n.oh-panel {\n  position: fixed; top: 44px; left: 12px; z-index: 2147483000;\n  width: 380px; max-height: 82vh; overflow-y: auto;\n  background: #fff; color: #222; direction: rtl; text-align: right;\n  font: 13px Arial, sans-serif; border-radius: 10px;\n  box-shadow: 0 6px 24px rgba(0,0,0,.25); border: 1px solid #ccc;\n}\n.oh-hidden { display: none !important; }\n.oh-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: #1f6f43; color: #fff; font-weight: bold; border-radius: 10px 10px 0 0; }\n.oh-x { background: none; border: 0; color: #fff; font-size: 20px; cursor: pointer; line-height: 1; }\n.oh-tabs { display: flex; border-bottom: 1px solid #ddd; }\n.oh-tab { flex: 1; padding: 8px; border: 0; background: #f4f4f4; cursor: pointer; font: 13px Arial, sans-serif; }\n.oh-tab.oh-active { background: #fff; font-weight: bold; border-bottom: 2px solid #1f6f43; }\n.oh-body { padding: 10px 12px; }\n.oh-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 6px 0; }\n.oh-time-pick { display: inline-flex; align-items: center; gap: 2px; font-weight: bold; }\n.oh-tsel { width: auto !important; padding: 1px 2px; margin: 0; height: auto; font: 13px Arial, sans-serif; }\n.oh-chip { border: 1px solid #1f6f43; color: #1f6f43; background: #fff; border-radius: 12px; padding: 2px 10px; cursor: pointer; font-size: 12px; }\n.oh-chip:hover { background: #e9f5ee; }\n.oh-hint { color: #555; font-size: 12px; margin-bottom: 4px; }\n.oh-list { border: 1px solid #e3e3e3; border-radius: 6px; max-height: 260px; overflow-y: auto; padding: 4px 6px; margin: 6px 0; }\n.oh-item { display: flex; gap: 6px; align-items: center; padding: 3px 0; border-bottom: 1px solid #f1f1f1; cursor: pointer; margin: 0; font-size: 13px; }\n.oh-item input { margin: 0; }\n.oh-time { font-weight: bold; min-width: 40px; }\n.oh-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\n.oh-st { font-size: 11px; padding: 1px 6px; border-radius: 8px; background: #eee; white-space: nowrap; }\n.oh-st-sent { background: #d9f2df; color: #1d6b33; }\n.oh-st-confirmed { background: #d6e8fb; color: #1a4f8a; }\n.oh-st-pending { background: #eee; color: #555; }\n.oh-warn { font-size: 11px; color: #b00; }\n.oh-empty { color: #777; padding: 8px 0; }\n.oh-select { width: 100%; margin: 0; }\n.oh-text { width: 100%; box-sizing: border-box; font: 13px Arial, sans-serif; direction: rtl; }\n.oh-preview { font-size: 12px; color: #444; background: #fafafa; border-radius: 6px; padding: 4px 6px; margin: 4px 0; white-space: pre-wrap; }\n.oh-preview:empty { display: none; }\n.oh-primary { width: 100%; margin-top: 6px; padding: 8px; background: #1f6f43; color: #fff; border: 0; border-radius: 6px; font: bold 14px Arial, sans-serif; cursor: pointer; }\n.oh-primary:disabled { opacity: .5; cursor: default; }\n.oh-log { font-size: 12px; max-height: 160px; overflow-y: auto; margin-top: 6px; }\n.oh-log:empty { display: none; }\n.oh-good { color: #1d6b33; font-weight: bold; }\n.oh-bad { color: #b00; }\n/* תיבות סימון ביומן ופס פעולות */\ninput.oh-rowcb { margin: 0 0 0 6px !important; vertical-align: middle; cursor: pointer; width: 15px; height: 15px; }\n.oh-bar {\n  position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); z-index: 2147483000;\n  width: min(460px, calc(100vw - 32px)); direction: rtl; text-align: right;\n  background: #fff; border: 2px solid #1f6f43; border-radius: 12px; padding: 8px 10px;\n  box-shadow: 0 6px 24px rgba(0,0,0,.3); font: 13px Arial, sans-serif; color: #222;\n}\n.oh-bar-top { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }\n.oh-bar-count { font-weight: bold; margin-left: auto; }\n.oh-bar-btn { border: 0; border-radius: 6px; padding: 6px 10px; cursor: pointer; font: bold 13px Arial, sans-serif; color: #fff; }\n.oh-bar-btn:disabled { opacity: .5; }\n.oh-bar-wa { background: #25a35a; }\n.oh-bar-sms { background: #2a6db0; }\n.oh-bar-clear { background: #eee; color: #333; font-weight: normal; }\n.oh-bar-smsbox { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }\n.oh-bar-smsbox.oh-hidden { display: none !important; }\n\n\n/* תגיות ספירת הודעות */\n.oh-badges { display: inline-flex; gap: 3px; margin: 0 4px; vertical-align: middle; white-space: nowrap; }\n.oh-b { display: inline-block; font: bold 10px/1.5 Arial, sans-serif; padding: 0 5px; border-radius: 8px; direction: ltr; }\n.oh-b-wa { background: #dcf5e3; color: #1d6b33; border: 1px solid #9fd8b0; }\n.oh-b-wa.oh-b-strong { background: #25a35a; color: #fff; border-color: #25a35a; }\n.oh-b-sms { background: #dce9f8; color: #1a4f8a; border: 1px solid #a7c4e6; }\n.oh-b-zero { opacity: .35; }\n.oh-legend { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }\n\n/* מסך טלפון */\n@media (max-width: 760px) {\n  .oh-toggle { top: auto; bottom: 14px; left: 14px; padding: 10px 16px; font-size: 15px; }\n  .oh-panel { top: 8px; left: 8px; right: 8px; width: auto; max-height: calc(100vh - 80px); font-size: 15px; }\n  .oh-tab { padding: 12px; font-size: 15px; }\n  .oh-chip { padding: 7px 12px; font-size: 14px; }\n  .oh-item { padding: 9px 0; font-size: 15px; }\n  .oh-item input { width: 20px; height: 20px; }\n  .oh-tsel, .oh-select, .oh-text { font-size: 16px !important; padding: 6px 4px !important; }\n  .oh-primary { padding: 12px; font-size: 16px; }\n  .oh-b { font-size: 12px; }\n  input.oh-rowcb { width: 22px; height: 22px; margin-left: 8px !important; }\n  .oh-bar { bottom: 8px; width: calc(100vw - 16px); padding: 10px; font-size: 15px; }\n  .oh-bar-btn { padding: 10px 12px; font-size: 15px; }\n}\n";document.head.appendChild(s);})();
 // Odoro Helper — תוסף מקומי ליומן אודורו
 // שתי פעולות:
 // 1. וואטסאפ חוזר: מחזיר תורים במצב "נשלח ולא אושר" (ירוק) למצב "יישלח" (אפור), והמערכת שולחת שוב.
@@ -89,6 +89,56 @@
     return '';
   }
 
+  // ---------- ספירת הודעות לכל תור ----------
+  // נשמר בדפדפן הזה בלבד (localStorage של אודורו), לפי יום. וואטסאפ חוזר נספר אוטומטית
+  // כשתור עובר מ"נשלח"/"אישר" ל"יישלח" — גם אם נעשה ידנית מהאייקון. SMS נספר כשנשלח
+  // מהתוסף או מחלון ה-SMS של אודורו.
+  const CKEY = () => 'oh-counts-' + dayDate();
+  function loadCounts() { try { return JSON.parse(localStorage.getItem(CKEY())) || {}; } catch (_) { return {}; } }
+  function saveCounts(c) { try { localStorage.setItem(CKEY(), JSON.stringify(c)); } catch (_) {} }
+  const entry = (c, id) => (c[id] = c[id] || { wa: 0, sms: 0, last: null });
+  function bump(id, kind, setLast) {
+    const c = loadCounts(); const e = entry(c, id);
+    e[kind]++; if (setLast) e.last = setLast;
+    saveCounts(c);
+  }
+  function syncCounts(rows) {
+    const c = loadCounts(); let changed = false;
+    rows.forEach(r => {
+      const e = entry(c, r.id);
+      if (e.last !== r.status) {
+        if (r.status === 'pending' && (e.last === 'sent' || e.last === 'confirmed')) e.wa++;
+        e.last = r.status; changed = true;
+      }
+    });
+    if (changed) saveCounts(c);
+    return c;
+  }
+  // סה"כ וואטסאפ: הבוקר (אם נשלח) + שליחות חוזרות
+  function counts(r, c) {
+    const e = (c || loadCounts())[r.id] || { wa: 0, sms: 0 };
+    const morning = (r.status === 'sent' || r.status === 'confirmed' || (r.status === 'pending' && e.wa > 0)) ? 1 : 0;
+    return { wa: morning + e.wa, sms: e.sms };
+  }
+  try { // ניקוי ימים ישנים (מעל 14 יום)
+    const lim = new Date(Date.now() - 14 * 864e5);
+    const limStr = lim.getFullYear() + pad(lim.getMonth() + 1) + pad(lim.getDate());
+    Object.keys(localStorage).filter(k => k.startsWith('oh-counts-') && k.slice(10) < limStr).forEach(k => localStorage.removeItem(k));
+  } catch (_) {}
+  // SMS שנשלח ידנית מחלון אודורו
+  document.addEventListener('click', ev => {
+    if (!ev.target.closest || !ev.target.closest('#send_sms')) return;
+    const id = document.getElementById('sms_event_id')?.value;
+    if (id && id !== '0') { bump(id, 'sms'); setTimeout(() => window.__ohRefreshBadges && window.__ohRefreshBadges(), 200); }
+  }, true);
+
+  function badgeEls(cnt) {
+    return [
+      el('span', { class: 'oh-b oh-b-wa' + (cnt.wa >= 2 ? ' oh-b-strong' : '') + (cnt.wa ? '' : ' oh-b-zero'), title: 'וואטסאפ שנשלחו' }, 'W' + cnt.wa),
+      el('span', { class: 'oh-b oh-b-sms' + (cnt.sms ? '' : ' oh-b-zero'), title: 'SMS שנשלחו' }, 'S' + cnt.sms)
+    ];
+  }
+
   function render(tpl, r) {
     const dd = dayDate();
     const parts = r.name.split(/\s+/);
@@ -170,6 +220,7 @@
   function listView(rows, checkedByDefault) {
     const wrap = el('div', { class: 'oh-list' });
     if (!rows.length) { wrap.append(el('div', { class: 'oh-empty' }, 'אין תורים מתאימים בטווח')); return { wrap, selected: () => [] }; }
+    const c = loadCounts();
     const boxes = rows.map(r => {
       const cb = el('input', { type: 'checkbox' });
       cb.checked = checkedByDefault;
@@ -178,6 +229,7 @@
       wrap.append(el('label', { class: 'oh-item' }, cb,
         el('span', { class: 'oh-time' }, fmt(r.start)),
         el('span', { class: 'oh-name' }, r.name || '(ללא שם)'),
+        el('span', { class: 'oh-badges' }, badgeEls(counts(r, c))),
         el('span', { class: 'oh-st oh-st-' + r.status }, STATUS_HE[r.status] || r.status),
         ph ? '' : el('span', { class: 'oh-warn' }, 'אין נייד')));
       return cb;
@@ -221,7 +273,11 @@
           if (r.status === 'pending') { reached = true; break; }
           if (r.status === startStatus) break; // חזר להתחלה בלי לעבור באפור
         }
-        if (reached) { done++; log(out, `${label}: הועבר ל"יישלח"`); }
+        if (reached) {
+          done++; log(out, `${label}: הועבר ל"יישלח"`);
+          const c = loadCounts(); const e = entry(c, id);
+          if (e.last !== 'pending') { e.wa++; e.last = 'pending'; saveCounts(c); }
+        }
         else log(out, `${label}: לא הצלחתי להגיע ל"יישלח" (מצב נוכחי: ${STATUS_HE[r.status] || r.status}). כדאי לבדוק ידנית.`, 'oh-bad');
       }
       log(out, 'מאמת…');
@@ -256,7 +312,7 @@
           body
         });
         let j = null; try { j = await res.json(); } catch (_) {}
-        if (j && j.success === true) { ok++; log(out, `${fmt(r.start)} ${r.name}: נשלח`); }
+        if (j && j.success === true) { ok++; bump(r.id, 'sms'); log(out, `${fmt(r.start)} ${r.name}: נשלח`); }
         else log(out, `${fmt(r.start)} ${r.name}: נכשל`, 'oh-bad');
       } catch (e) {
         log(out, `${fmt(r.start)} ${r.name}: שגיאה ${e.message}`, 'oh-bad');
@@ -264,6 +320,7 @@
       await sleep(700);
     }
     log(out, `הסתיים: ${ok} מתוך ${sendable.length} נשלחו.`, ok === sendable.length ? 'oh-good' : 'oh-bad');
+    window.__ohRefreshBadges && window.__ohRefreshBadges();
   }
 
   function templateSelect(textarea, onPick) {
@@ -287,10 +344,15 @@
     inclConfirmed.onchange = () => refresh();
     const range = rangeControls(refresh);
     const ELIGIBLE = () => (inclConfirmed.checked ? ['sent', 'confirmed'] : ['sent']);
+    const onlyOnce = el('input', { type: 'checkbox' });
+    onlyOnce.checked = true;
+    onlyOnce.onchange = () => refresh();
 
     function refresh() {
       const [a, b] = range.get();
-      const rows = parse(document).filter(r => ELIGIBLE().includes(r.status) && r.start >= a && r.start <= b);
+      const c = loadCounts();
+      const rows = parse(document).filter(r => ELIGIBLE().includes(r.status) && r.start >= a && r.start <= b &&
+        (!onlyOnce.checked || counts(r, c).wa <= 1));
       list = listView(rows, true);
       listHolder.replaceChildren(list.wrap);
       runBtn.textContent = `שלח שוב וואטסאפ (${rows.length})`;
@@ -308,6 +370,8 @@
       el('div', { class: 'oh-hint' }, 'מוצגים תורים שהוואטסאפ כבר נשלח אליהם. תורים במצב "לא תישלח" (לבן) לא נכללים.'),
       range.box,
       el('label', { class: 'oh-row' }, inclConfirmed, ' כולל מי שכבר אישר (V)'),
+      el('label', { class: 'oh-row' }, onlyOnce, ' רק מי שקיבל וואטסאפ פעם אחת (בלי שליחה חוזרת)'),
+      el('div', { class: 'oh-hint oh-legend' }, ...badgeEls({ wa: 2, sms: 1 }), ' = 2 וואטסאפ, SMS אחד. נספר במחשב הזה בלבד.'),
       listHolder, runBtn, out);
     range.setRange(range.base(), range.base() + 60);
   })();
@@ -320,6 +384,8 @@
     const hideConfirmed = el('input', { type: 'checkbox' });
     const range = rangeControls(refresh);
     hideConfirmed.onchange = refresh;
+    const noSmsYet = el('input', { type: 'checkbox' });
+    noSmsYet.onchange = refresh;
 
     const tplSel = el('select', { class: 'oh-select' }, el('option', { value: '' }, '— בחר תבנית או כתוב חופשי —'));
     document.querySelectorAll('#sms_template option').forEach(o => {
@@ -334,7 +400,9 @@
 
     function refresh() {
       const [a, b] = range.get();
-      const rows = parse(document).filter(r => r.start >= a && r.start <= b && (!hideConfirmed.checked || r.status !== 'confirmed'));
+      const c = loadCounts();
+      const rows = parse(document).filter(r => r.start >= a && r.start <= b && (!hideConfirmed.checked || r.status !== 'confirmed') &&
+        (!noSmsYet.checked || counts(r, c).sms === 0));
       list = listView(rows, false);
       listHolder.replaceChildren(list.wrap);
       list.wrap.addEventListener('change', preview);
@@ -356,6 +424,7 @@
     bodySms.append(
       range.box,
       el('label', { class: 'oh-row' }, hideConfirmed, ' הסתר מי שכבר אישר'),
+      el('label', { class: 'oh-row' }, noSmsYet, ' רק מי שעוד לא קיבל SMS היום'),
       listHolder,
       el('div', { class: 'oh-row' }, tplSel),
       text, prev, sendBtn, out);
@@ -426,7 +495,29 @@
       cb.addEventListener('change', () => { cb.checked ? picked.add(id) : picked.delete(id); updateBar(); });
       nameTd.prepend(cb);
     });
+    refreshBadges();
   }
+  // תגיות ספירה ליד השם ביומן. מעדכנים רק אם השתנה, כדי לא להפעיל לולאה של ה-MutationObserver.
+  function refreshBadges() {
+    const rows = parse(document);
+    const c = syncCounts(rows);
+    rows.forEach(r => {
+      const nameTd = document.querySelector(`td.event_status[data-id="${r.id}"]`)?.closest('tr')?.querySelector('td.event_name');
+      if (!nameTd) return;
+      const cnt = counts(r, c);
+      const sig = cnt.wa + '|' + cnt.sms;
+      let box = nameTd.querySelector('span.oh-badges');
+      if (box && box.dataset.sig === sig) return;
+      if (!box) {
+        box = el('span', { class: 'oh-badges' });
+        const cb = nameTd.querySelector('input.oh-rowcb');
+        cb ? cb.after(box) : nameTd.prepend(box);
+      }
+      box.dataset.sig = sig;
+      box.replaceChildren(...badgeEls(cnt));
+    });
+  }
+  window.__ohRefreshBadges = refreshBadges;
   injectCheckboxes();
   let injTimer;
   new MutationObserver(() => { clearTimeout(injTimer); injTimer = setTimeout(injectCheckboxes, 300); })
