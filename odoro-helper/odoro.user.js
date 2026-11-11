@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Odoro Helper
 // @namespace    chapnick-sudo
-// @version      1.6.0
+// @version      1.7.0
 // @description  שליחה חוזרת של וואטסאפ ושליחת SMS קבוצתית ביומן אודורו
 // @match        https://sl.odoro.co.il/cal3/*
 // @grant        none
@@ -10,7 +10,7 @@
 // @updateURL    https://cdn.jsdelivr.net/gh/chapnick-sudo/keshel-updates@main/odoro-helper/odoro.user.js
 // ==/UserScript==
 // לא מכיל מידע על מטופלים. רץ רק בדפדפן של המשתמש, בתוך אודורו, בחיבור שלו.
-(function(){var s=document.createElement("style");s.id="oh-style";s.textContent=".oh-toggle {\n  position: fixed; top: 8px; left: 12px; z-index: 2147483000;\n  background: #1f6f43; color: #fff; border: 0; border-radius: 18px;\n  padding: 6px 14px; font: bold 13px Arial, sans-serif; cursor: pointer;\n  box-shadow: 0 2px 6px rgba(0,0,0,.25);\n}\n.oh-panel {\n  position: fixed; top: 44px; left: 12px; z-index: 2147483000;\n  width: 380px; max-height: 82vh; overflow-y: auto;\n  background: #fff; color: #222; direction: rtl; text-align: right;\n  font: 13px Arial, sans-serif; border-radius: 10px;\n  box-shadow: 0 6px 24px rgba(0,0,0,.25); border: 1px solid #ccc;\n}\n.oh-hidden { display: none !important; }\n.oh-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: #1f6f43; color: #fff; font-weight: bold; border-radius: 10px 10px 0 0; }\n.oh-x { background: none; border: 0; color: #fff; font-size: 20px; cursor: pointer; line-height: 1; }\n.oh-tabs { display: flex; border-bottom: 1px solid #ddd; }\n.oh-tab { flex: 1; padding: 8px; border: 0; background: #f4f4f4; cursor: pointer; font: 13px Arial, sans-serif; }\n.oh-tab.oh-active { background: #fff; font-weight: bold; border-bottom: 2px solid #1f6f43; }\n.oh-body { padding: 10px 12px; }\n.oh-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 6px 0; }\n.oh-time-pick { display: inline-flex; align-items: center; gap: 2px; font-weight: bold; }\n.oh-tsel { width: auto !important; padding: 1px 2px; margin: 0; height: auto; font: 13px Arial, sans-serif; }\n.oh-chip { border: 1px solid #1f6f43; color: #1f6f43; background: #fff; border-radius: 12px; padding: 2px 10px; cursor: pointer; font-size: 12px; }\n.oh-chip:hover { background: #e9f5ee; }\n.oh-hint { color: #555; font-size: 12px; margin-bottom: 4px; }\n.oh-list { border: 1px solid #e3e3e3; border-radius: 6px; max-height: 260px; overflow-y: auto; padding: 4px 6px; margin: 6px 0; }\n.oh-item { display: flex; gap: 6px; align-items: center; padding: 3px 0; border-bottom: 1px solid #f1f1f1; cursor: pointer; margin: 0; font-size: 13px; }\n.oh-item input { margin: 0; }\n.oh-time { font-weight: bold; min-width: 40px; }\n.oh-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\n.oh-st { font-size: 11px; padding: 1px 6px; border-radius: 8px; background: #eee; white-space: nowrap; }\n.oh-st-sent { background: #d9f2df; color: #1d6b33; }\n.oh-st-confirmed { background: #d6e8fb; color: #1a4f8a; }\n.oh-st-pending { background: #eee; color: #555; }\n.oh-warn { font-size: 11px; color: #b00; }\n.oh-empty { color: #777; padding: 8px 0; }\n.oh-select { width: 100%; margin: 0; }\n.oh-text { width: 100%; box-sizing: border-box; font: 13px Arial, sans-serif; direction: rtl; }\n.oh-preview { font-size: 12px; color: #444; background: #fafafa; border-radius: 6px; padding: 4px 6px; margin: 4px 0; white-space: pre-wrap; }\n.oh-preview:empty { display: none; }\n.oh-primary { width: 100%; margin-top: 6px; padding: 8px; background: #1f6f43; color: #fff; border: 0; border-radius: 6px; font: bold 14px Arial, sans-serif; cursor: pointer; }\n.oh-primary:disabled { opacity: .5; cursor: default; }\n.oh-log { font-size: 12px; max-height: 160px; overflow-y: auto; margin-top: 6px; }\n.oh-log:empty { display: none; }\n.oh-good { color: #1d6b33; font-weight: bold; }\n.oh-bad { color: #b00; }\n/* תיבות סימון ביומן ופס פעולות */\ninput.oh-rowcb { margin: 0 0 0 6px !important; vertical-align: middle; cursor: pointer; width: 15px; height: 15px; }\n.oh-bar {\n  position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); z-index: 2147483000;\n  width: min(460px, calc(100vw - 32px)); direction: rtl; text-align: right;\n  background: #fff; border: 2px solid #1f6f43; border-radius: 12px; padding: 8px 10px;\n  box-shadow: 0 6px 24px rgba(0,0,0,.3); font: 13px Arial, sans-serif; color: #222;\n}\n.oh-bar-top { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }\n.oh-bar-count { font-weight: bold; margin-left: auto; }\n.oh-bar-btn { border: 0; border-radius: 6px; padding: 6px 10px; cursor: pointer; font: bold 13px Arial, sans-serif; color: #fff; }\n.oh-bar-btn:disabled { opacity: .5; }\n.oh-bar-wa { background: #25a35a; }\n.oh-bar-sms { background: #2a6db0; }\n.oh-bar-clear { background: #eee; color: #333; font-weight: normal; }\n.oh-bar-smsbox { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }\n.oh-bar-smsbox.oh-hidden { display: none !important; }\n\n\n/* תגיות ספירת הודעות */\n.oh-badges { display: inline-flex; gap: 3px; margin: 0 4px; vertical-align: middle; white-space: nowrap; }\n.oh-b { display: inline-block; font: bold 10px/1.5 Arial, sans-serif; padding: 0 5px; border-radius: 8px; direction: ltr; }\n.oh-b-wa { background: #dcf5e3; color: #1d6b33; border: 1px solid #9fd8b0; }\n.oh-b-wa.oh-b-strong { background: #25a35a; color: #fff; border-color: #25a35a; }\n.oh-b-sms { background: #dce9f8; color: #1a4f8a; border: 1px solid #a7c4e6; }\n.oh-b-zero { opacity: .35; }\n.oh-legend { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }\n\n.oh-copyid { font: bold 10px/1.4 Arial, sans-serif; padding: 0 5px; margin: 0 2px; border: 1px solid #bbb; border-radius: 6px; background: #f6f6f6; color: #444; cursor: pointer; vertical-align: middle; }\n.oh-copyid:hover { background: #e8e8e8; }\n.oh-copyid.oh-copied { background: #25a35a; color: #fff; border-color: #25a35a; }\n\n/* מסך טלפון */\n@media (max-width: 760px) {\n  .oh-toggle { top: auto; bottom: 14px; left: 14px; padding: 10px 16px; font-size: 15px; }\n  .oh-panel { top: 8px; left: 8px; right: 8px; width: auto; max-height: calc(100vh - 80px); font-size: 15px; }\n  .oh-tab { padding: 12px; font-size: 15px; }\n  .oh-chip { padding: 7px 12px; font-size: 14px; }\n  .oh-item { padding: 9px 0; font-size: 15px; }\n  .oh-item input { width: 20px; height: 20px; }\n  .oh-tsel, .oh-select, .oh-text { font-size: 16px !important; padding: 6px 4px !important; }\n  .oh-primary { padding: 12px; font-size: 16px; }\n  .oh-b { font-size: 12px; }\n  .oh-copyid { font-size: 13px; padding: 3px 8px; }\n  input.oh-rowcb { width: 22px; height: 22px; margin-left: 8px !important; }\n  .oh-bar { bottom: 8px; width: calc(100vw - 16px); padding: 10px; font-size: 15px; }\n  .oh-bar-btn { padding: 10px 12px; font-size: 15px; }\n}\n";document.head.appendChild(s);})();
+(function(){var s=document.createElement("style");s.id="oh-style";s.textContent=".oh-toggle {\n  position: fixed; top: 8px; left: 12px; z-index: 2147483000;\n  background: #1f6f43; color: #fff; border: 0; border-radius: 18px;\n  padding: 6px 14px; font: bold 13px Arial, sans-serif; cursor: pointer;\n  box-shadow: 0 2px 6px rgba(0,0,0,.25);\n}\n.oh-panel {\n  position: fixed; top: 44px; left: 12px; z-index: 2147483000;\n  width: 380px; max-height: 82vh; overflow-y: auto;\n  background: #fff; color: #222; direction: rtl; text-align: right;\n  font: 13px Arial, sans-serif; border-radius: 10px;\n  box-shadow: 0 6px 24px rgba(0,0,0,.25); border: 1px solid #ccc;\n}\n.oh-hidden { display: none !important; }\n.oh-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: #1f6f43; color: #fff; font-weight: bold; border-radius: 10px 10px 0 0; }\n.oh-x { background: none; border: 0; color: #fff; font-size: 20px; cursor: pointer; line-height: 1; }\n.oh-tabs { display: flex; border-bottom: 1px solid #ddd; }\n.oh-tab { flex: 1; padding: 8px; border: 0; background: #f4f4f4; cursor: pointer; font: 13px Arial, sans-serif; }\n.oh-tab.oh-active { background: #fff; font-weight: bold; border-bottom: 2px solid #1f6f43; }\n.oh-body { padding: 10px 12px; }\n.oh-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 6px 0; }\n.oh-time-pick { display: inline-flex; align-items: center; gap: 2px; font-weight: bold; }\n.oh-tsel { width: auto !important; padding: 1px 2px; margin: 0; height: auto; font: 13px Arial, sans-serif; }\n.oh-chip { border: 1px solid #1f6f43; color: #1f6f43; background: #fff; border-radius: 12px; padding: 2px 10px; cursor: pointer; font-size: 12px; }\n.oh-chip:hover { background: #e9f5ee; }\n.oh-hint { color: #555; font-size: 12px; margin-bottom: 4px; }\n.oh-list { border: 1px solid #e3e3e3; border-radius: 6px; max-height: 260px; overflow-y: auto; padding: 4px 6px; margin: 6px 0; }\n.oh-item { display: flex; gap: 6px; align-items: center; padding: 3px 0; border-bottom: 1px solid #f1f1f1; cursor: pointer; margin: 0; font-size: 13px; }\n.oh-item input { margin: 0; }\n.oh-time { font-weight: bold; min-width: 40px; }\n.oh-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\n.oh-st { font-size: 11px; padding: 1px 6px; border-radius: 8px; background: #eee; white-space: nowrap; }\n.oh-st-sent { background: #d9f2df; color: #1d6b33; }\n.oh-st-confirmed { background: #d6e8fb; color: #1a4f8a; }\n.oh-st-pending { background: #eee; color: #555; }\n.oh-warn { font-size: 11px; color: #b00; }\n.oh-empty { color: #777; padding: 8px 0; }\n.oh-select { width: 100%; margin: 0; }\n.oh-text { width: 100%; box-sizing: border-box; font: 13px Arial, sans-serif; direction: rtl; }\n.oh-preview { font-size: 12px; color: #444; background: #fafafa; border-radius: 6px; padding: 4px 6px; margin: 4px 0; white-space: pre-wrap; }\n.oh-preview:empty { display: none; }\n.oh-primary { width: 100%; margin-top: 6px; padding: 8px; background: #1f6f43; color: #fff; border: 0; border-radius: 6px; font: bold 14px Arial, sans-serif; cursor: pointer; }\n.oh-primary:disabled { opacity: .5; cursor: default; }\n.oh-log { font-size: 12px; max-height: 160px; overflow-y: auto; margin-top: 6px; }\n.oh-log:empty { display: none; }\n.oh-good { color: #1d6b33; font-weight: bold; }\n.oh-bad { color: #b00; }\n/* תיבות סימון ביומן ופס פעולות */\ninput.oh-rowcb { margin: 0 0 0 6px !important; vertical-align: middle; cursor: pointer; width: 15px; height: 15px; }\n.oh-bar {\n  position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); z-index: 2147483000;\n  width: min(460px, calc(100vw - 32px)); direction: rtl; text-align: right;\n  background: #fff; border: 2px solid #1f6f43; border-radius: 12px; padding: 8px 10px;\n  box-shadow: 0 6px 24px rgba(0,0,0,.3); font: 13px Arial, sans-serif; color: #222;\n}\n.oh-bar-top { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }\n.oh-bar-count { font-weight: bold; margin-left: auto; }\n.oh-bar-btn { border: 0; border-radius: 6px; padding: 6px 10px; cursor: pointer; font: bold 13px Arial, sans-serif; color: #fff; }\n.oh-bar-btn:disabled { opacity: .5; }\n.oh-bar-wa { background: #25a35a; }\n.oh-bar-sms { background: #2a6db0; }\n.oh-bar-clear { background: #eee; color: #333; font-weight: normal; }\n.oh-bar-smsbox { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }\n.oh-bar-smsbox.oh-hidden { display: none !important; }\n\n\n/* תגיות ספירת הודעות */\n.oh-badges { display: inline-flex; gap: 3px; margin: 0 4px; vertical-align: middle; white-space: nowrap; }\n.oh-b { display: inline-block; font: bold 10px/1.5 Arial, sans-serif; padding: 0 5px; border-radius: 8px; direction: ltr; }\n.oh-b-wa { background: #dcf5e3; color: #1d6b33; border: 1px solid #9fd8b0; }\n.oh-b-wa.oh-b-strong { background: #25a35a; color: #fff; border-color: #25a35a; }\n.oh-b-sms { background: #dce9f8; color: #1a4f8a; border: 1px solid #a7c4e6; }\n.oh-b-zero { opacity: .35; }\n.oh-legend { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }\n\n.oh-copyid { font: bold 10px/1.4 Arial, sans-serif; padding: 0 5px; margin: 0 2px; border: 1px solid #bbb; border-radius: 6px; background: #f6f6f6; color: #444; cursor: pointer; vertical-align: middle; }\n.oh-copyid:hover { background: #e8e8e8; }\n.oh-copyid.oh-copied { background: #25a35a; color: #fff; border-color: #25a35a; }\n\n/* תורים טלפוניים */\ntr.oh-phone-row > td { background: #ffe2a8 !important; }\ntr.oh-phone-row > td:first-child { box-shadow: inset -6px 0 0 #f08c00; }\ntr.oh-phone-row.oh-phone-done > td { background: #e6f4ea !important; }\ntr.oh-phone-row.oh-phone-done > td:first-child { box-shadow: inset -6px 0 0 #25a35a; }\n.oh-phone-tag { display: inline-block; font: bold 11px/1.5 Arial, sans-serif; padding: 0 6px; margin: 0 3px; border-radius: 8px; background: #f08c00; color: #fff; white-space: nowrap; vertical-align: middle; }\ntr.oh-phone-done .oh-phone-tag { background: #25a35a; }\n.oh-phone-btn { position: fixed; top: 8px; left: 130px; z-index: 2147483000; border: 0; border-radius: 18px; padding: 6px 14px; font: bold 13px Arial, sans-serif; cursor: pointer; background: #888; color: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.25); }\n.oh-phone-btn.oh-phone-btn-alert { background: #f08c00; animation: oh-pulse 2s infinite; }\n@keyframes oh-pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(240,140,0,.6); } 50% { box-shadow: 0 0 0 8px rgba(240,140,0,0); } }\n.oh-phone-pop { position: fixed; top: 44px; left: 12px; z-index: 2147483001; width: 400px; max-height: 80vh; overflow-y: auto; background: #fff; color: #222; direction: rtl; text-align: right; font: 13px Arial, sans-serif; border-radius: 10px; box-shadow: 0 6px 24px rgba(0,0,0,.3); border: 2px solid #f08c00; }\n.oh-phone-pop .oh-header { background: #f08c00; }\n.oh-phone-list { display: flex; flex-direction: column; gap: 4px; }\n.oh-phone-item { border: 1px solid #f3d29a; background: #fff8eb; border-radius: 6px; padding: 5px 7px; }\n.oh-phone-item.oh-pi-done { background: #eef7f0; border-color: #bfe3c9; opacity: .7; }\n.oh-phone-item.oh-pi-done .oh-name { text-decoration: line-through; }\n.oh-phone-item.oh-pi-late { border-color: #d33; background: #fdecec; }\n.oh-pi-main { display: flex; gap: 6px; align-items: center; margin: 0; cursor: pointer; }\n.oh-pi-main input { margin: 0; }\n.oh-pi-latetag { background: #d33; color: #fff; font-size: 11px; font-weight: bold; padding: 0 6px; border-radius: 8px; }\n.oh-pi-actions { display: flex; gap: 6px; align-items: center; margin-top: 3px; padding-right: 20px; }\n.oh-pi-phone { font-weight: bold; color: #444; }\n\n/* מסך טלפון */\n@media (max-width: 760px) {\n  .oh-toggle { top: auto; bottom: 14px; left: 14px; padding: 10px 16px; font-size: 15px; }\n  .oh-panel { top: 8px; left: 8px; right: 8px; width: auto; max-height: calc(100vh - 80px); font-size: 15px; }\n  .oh-tab { padding: 12px; font-size: 15px; }\n  .oh-chip { padding: 7px 12px; font-size: 14px; }\n  .oh-item { padding: 9px 0; font-size: 15px; }\n  .oh-item input { width: 20px; height: 20px; }\n  .oh-tsel, .oh-select, .oh-text { font-size: 16px !important; padding: 6px 4px !important; }\n  .oh-primary { padding: 12px; font-size: 16px; }\n  .oh-b { font-size: 12px; }\n  .oh-phone-btn { top: auto; bottom: 14px; left: auto; right: 14px; padding: 10px 16px; font-size: 15px; }\n  .oh-phone-pop { top: 8px; left: 8px; right: 8px; width: auto; max-height: calc(100vh - 80px); font-size: 15px; }\n  .oh-phone-item { padding: 9px; }\n  .oh-copyid { font-size: 13px; padding: 3px 8px; }\n  input.oh-rowcb { width: 22px; height: 22px; margin-left: 8px !important; }\n  .oh-bar { bottom: 8px; width: calc(100vw - 16px); padding: 10px; font-size: 15px; }\n  .oh-bar-btn { padding: 10px 12px; font-size: 15px; }\n}\n";document.head.appendChild(s);})();
 // Odoro Helper — תוסף מקומי ליומן אודורו
 // שתי פעולות:
 // 1. וואטסאפ חוזר: מחזיר תורים במצב "נשלח ולא אושר" (ירוק) למצב "יישלח" (אפור), והמערכת שולחת שוב.
@@ -74,6 +74,8 @@
         name: (td.getAttribute('data-name') || '').trim(),
         phone1: td.getAttribute('data-phone1') || '',
         phone2: td.getAttribute('data-phone2') || '',
+        govid: (td.getAttribute('data-govid') || '').trim(),
+        phoneAppt: (td.getAttribute('data-platform') || '0') !== '0',
         status: STATUS[key] || key || 'unknown',
         conf: hm ? hm[2] : '1',
         user: hm ? hm[3] : null
@@ -133,7 +135,10 @@
   try { // ניקוי ימים ישנים (מעל 14 יום)
     const lim = new Date(Date.now() - 14 * 864e5);
     const limStr = lim.getFullYear() + pad(lim.getMonth() + 1) + pad(lim.getDate());
-    Object.keys(localStorage).filter(k => k.startsWith('oh-counts-') && k.slice(10) < limStr).forEach(k => localStorage.removeItem(k));
+    Object.keys(localStorage).forEach(k => {
+      const m = k.match(/^oh-(counts|phone-done)-(\d{8})$/);
+      if (m && m[2] < limStr) localStorage.removeItem(k);
+    });
   } catch (_) {}
   // SMS שנשלח ידנית מחלון אודורו
   document.addEventListener('click', ev => {
@@ -541,6 +546,7 @@
       const nameTd = document.querySelector(`td.event_status[data-id="${r.id}"]`)?.closest('tr')?.querySelector('td.event_name');
       if (!nameTd) return;
       addCopyIdButton(nameTd, r.id);
+      markPhoneRow(nameTd, r);
       const cnt = counts(r, c);
       const sig = cnt.wa + '|' + cnt.sms;
       let box = nameTd.querySelector('span.oh-badges');
@@ -555,6 +561,96 @@
     });
   }
   window.__ohRefreshBadges = refreshBadges;
+
+  // ---------- תורים טלפוניים ----------
+  const PKEY = () => 'oh-phone-done-' + dayDate();
+  const loadDone = () => { try { return JSON.parse(localStorage.getItem(PKEY())) || {}; } catch (_) { return {}; } };
+  const saveDone = d => { try { localStorage.setItem(PKEY(), JSON.stringify(d)); } catch (_) {} };
+
+  // הדגשת השורה ביומן. משנים רק כשצריך, כדי לא להפעיל לולאה של ה-MutationObserver.
+  function markPhoneRow(nameTd, r) {
+    const tr = nameTd.closest('tr');
+    if (!r.phoneAppt) return;
+    const done = !!loadDone()[r.id];
+    if (!tr.classList.contains('oh-phone-row')) tr.classList.add('oh-phone-row');
+    if (tr.classList.contains('oh-phone-done') !== done) tr.classList.toggle('oh-phone-done', done);
+    if (!nameTd.querySelector('.oh-phone-tag')) {
+      const tag = el('span', { class: 'oh-phone-tag', title: 'תור טלפוני' }, '📞 טלפוני');
+      const anchor = nameTd.querySelector('span.oh-badges') || nameTd.querySelector('button.oh-copyid') || nameTd.querySelector('input.oh-rowcb');
+      anchor ? anchor.after(tag) : nameTd.prepend(tag);
+    }
+    const tag = nameTd.querySelector('.oh-phone-tag');
+    const txt = done ? '📞 טופל' : '📞 טלפוני';
+    if (tag.textContent !== txt) tag.textContent = txt;
+    updatePhoneBtn();
+  }
+
+  const phoneBtn = el('button', { class: 'oh-phone-btn', title: 'רשימת התורים הטלפוניים של היום' }, '📞');
+  const phonePop = el('div', { class: 'oh-phone-pop oh-hidden' });
+  document.body.append(phoneBtn, phonePop);
+  function updatePhoneBtn() {
+    const rows = parse(document).filter(r => r.phoneAppt);
+    const done = loadDone();
+    const left = rows.filter(r => !done[r.id]).length;
+    const txt = rows.length ? `📞 טלפוניים ${left}/${rows.length}` : '📞 0';
+    if (phoneBtn.textContent !== txt) phoneBtn.textContent = txt;
+    phoneBtn.classList.toggle('oh-phone-btn-alert', left > 0);
+  }
+  phoneBtn.onclick = () => { phonePop.classList.toggle('oh-hidden'); if (!phonePop.classList.contains('oh-hidden')) renderPhonePop(); };
+
+  function copyChip(label, value) {
+    const b = el('button', { class: 'oh-copyid', type: 'button', title: 'העתק ' + value }, label);
+    b.onclick = async e => {
+      e.stopPropagation();
+      const ok = await copyText(value);
+      b.textContent = ok ? '✓' : '✗'; b.classList.toggle('oh-copied', ok);
+      setTimeout(() => { b.textContent = label; b.classList.remove('oh-copied'); }, 1200);
+    };
+    return b;
+  }
+
+  let onlyOpen = false;
+  function renderPhonePop() {
+    const rows = parse(document).filter(r => r.phoneAppt);
+    const done = loadDone();
+    const now = isToday() ? nowMin() : -1;
+    const left = rows.filter(r => !done[r.id]).length;
+    const onlyOpenCb = el('input', { type: 'checkbox' });
+    onlyOpenCb.checked = onlyOpen;
+    onlyOpenCb.onchange = () => { onlyOpen = onlyOpenCb.checked; renderPhonePop(); };
+    const list = el('div', { class: 'oh-phone-list' });
+    const shown = rows.filter(r => !onlyOpen || !done[r.id]);
+    if (!shown.length) list.append(el('div', { class: 'oh-empty' }, rows.length ? 'כל התורים הטלפוניים טופלו 👍' : 'אין תורים טלפוניים ביום הזה'));
+    shown.forEach(r => {
+      const isDone = !!done[r.id];
+      const overdue = !isDone && now >= 0 && r.start + 15 <= now;
+      const cb = el('input', { type: 'checkbox', title: 'סמן כטופל' });
+      cb.checked = isDone;
+      cb.onchange = () => {
+        const d = loadDone(); cb.checked ? (d[r.id] = true) : delete d[r.id]; saveDone(d);
+        refreshBadges(); updatePhoneBtn(); renderPhonePop();
+      };
+      const phone = mobileOf(r) || (r.phone1 || r.phone2 || '').replace(/\D/g, '');
+      list.append(el('div', { class: 'oh-phone-item' + (isDone ? ' oh-pi-done' : '') + (overdue ? ' oh-pi-late' : '') },
+        el('label', { class: 'oh-pi-main' }, cb,
+          el('span', { class: 'oh-time' }, fmt(r.start)),
+          el('span', { class: 'oh-name' }, r.name || '(ללא שם)'),
+          overdue ? el('span', { class: 'oh-pi-latetag' }, 'עבר') : ''),
+        el('div', { class: 'oh-pi-actions' },
+          phone ? el('span', { class: 'oh-pi-phone', dir: 'ltr' }, phone) : el('span', { class: 'oh-warn' }, 'אין טלפון'),
+          phone ? copyChip('טלפון', phone) : '',
+          r.govid ? copyChip('ת"ז', r.govid) : '')));
+    });
+    phonePop.replaceChildren(
+      el('div', { class: 'oh-header' },
+        el('span', {}, `תורים טלפוניים — נותרו ${left} מתוך ${rows.length}`),
+        el('button', { class: 'oh-x', onclick: () => phonePop.classList.add('oh-hidden') }, '×')),
+      el('div', { class: 'oh-body' },
+        el('label', { class: 'oh-row' }, onlyOpenCb, ' הצג רק מה שלא טופל'),
+        list,
+        el('div', { class: 'oh-hint' }, 'סימון "טופל" נשמר במחשב הזה בלבד.')));
+  }
+  updatePhoneBtn();
   injectCheckboxes();
   let injTimer;
   new MutationObserver(() => { clearTimeout(injTimer); injTimer = setTimeout(injectCheckboxes, 300); })
