@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Odoro Helper
 // @namespace    chapnick-sudo
-// @version      1.7.0
+// @version      1.8.0
 // @description  שליחה חוזרת של וואטסאפ ושליחת SMS קבוצתית ביומן אודורו
 // @match        https://sl.odoro.co.il/cal3/*
 // @grant        none
@@ -76,6 +76,7 @@
         phone2: td.getAttribute('data-phone2') || '',
         govid: (td.getAttribute('data-govid') || '').trim(),
         phoneAppt: (td.getAttribute('data-platform') || '0') !== '0',
+        visit: td.getAttribute('data-status') || '0', // 0 הוזמן, 1 הגיע וממתין, 2 הסתיים (V ירוק), 3 לא הגיע
         status: STATUS[key] || key || 'unknown',
         conf: hm ? hm[2] : '1',
         user: hm ? hm[3] : null
@@ -563,15 +564,30 @@
   window.__ohRefreshBadges = refreshBadges;
 
   // ---------- תורים טלפוניים ----------
-  const PKEY = () => 'oh-phone-done-' + dayDate();
-  const loadDone = () => { try { return JSON.parse(localStorage.getItem(PKEY())) || {}; } catch (_) { return {}; } };
-  const saveDone = d => { try { localStorage.setItem(PKEY(), JSON.stringify(d)); } catch (_) {} };
+  // "טופל" = ה-V הירוק של אודורו ("הפגישה עם המטופל הסתיימה"). כך זה משותף לכל המחשבים.
+  const isVisitDone = r => r.visit === '2';
+  // מסמן V באודורו בלחיצה על אייקון הסטטוס שלו, צעד אחד בכל פעם (הוזמן ← ממתין ← הסתיים)
+  async function setOdoroDone(id) {
+    for (let i = 0; i < 3; i++) {
+      const td = document.querySelector(`td.event_status[data-id="${id}"]`);
+      if (!td) return false;
+      const st = td.getAttribute('data-status') || '0';
+      if (st === '2') return true;
+      if (st !== '0' && st !== '1') return false; // "לא הגיע" או סטטוס אישי — לא נוגעים
+      const a = td.querySelector('a[href*="eventUpdate"]');
+      if (!a) return false;
+      a.click();
+      for (let w = 0; w < 30 && td.isConnected && td.getAttribute('data-status') === st; w++) await sleep(100);
+      if (!td.isConnected) await sleep(1500); // אודורו רענן את הדף
+    }
+    return document.querySelector(`td.event_status[data-id="${id}"]`)?.getAttribute('data-status') === '2';
+  }
 
   // הדגשת השורה ביומן. משנים רק כשצריך, כדי לא להפעיל לולאה של ה-MutationObserver.
   function markPhoneRow(nameTd, r) {
     const tr = nameTd.closest('tr');
     if (!r.phoneAppt) return;
-    const done = !!loadDone()[r.id];
+    const done = isVisitDone(r);
     if (!tr.classList.contains('oh-phone-row')) tr.classList.add('oh-phone-row');
     if (tr.classList.contains('oh-phone-done') !== done) tr.classList.toggle('oh-phone-done', done);
     if (!nameTd.querySelector('.oh-phone-tag')) {
@@ -590,8 +606,7 @@
   document.body.append(phoneBtn, phonePop);
   function updatePhoneBtn() {
     const rows = parse(document).filter(r => r.phoneAppt);
-    const done = loadDone();
-    const left = rows.filter(r => !done[r.id]).length;
+    const left = rows.filter(r => !isVisitDone(r)).length;
     const txt = rows.length ? `📞 טלפוניים ${left}/${rows.length}` : '📞 0';
     if (phoneBtn.textContent !== txt) phoneBtn.textContent = txt;
     phoneBtn.classList.toggle('oh-phone-btn-alert', left > 0);
@@ -612,22 +627,25 @@
   let onlyOpen = false;
   function renderPhonePop() {
     const rows = parse(document).filter(r => r.phoneAppt);
-    const done = loadDone();
     const now = isToday() ? nowMin() : -1;
-    const left = rows.filter(r => !done[r.id]).length;
+    const left = rows.filter(r => !isVisitDone(r)).length;
     const onlyOpenCb = el('input', { type: 'checkbox' });
     onlyOpenCb.checked = onlyOpen;
     onlyOpenCb.onchange = () => { onlyOpen = onlyOpenCb.checked; renderPhonePop(); };
     const list = el('div', { class: 'oh-phone-list' });
-    const shown = rows.filter(r => !onlyOpen || !done[r.id]);
+    const shown = rows.filter(r => !onlyOpen || !isVisitDone(r));
     if (!shown.length) list.append(el('div', { class: 'oh-empty' }, rows.length ? 'כל התורים הטלפוניים טופלו 👍' : 'אין תורים טלפוניים ביום הזה'));
     shown.forEach(r => {
-      const isDone = !!done[r.id];
+      const isDone = isVisitDone(r);
       const overdue = !isDone && now >= 0 && r.start + 15 <= now;
       const cb = el('input', { type: 'checkbox', title: 'סמן כטופל' });
       cb.checked = isDone;
-      cb.onchange = () => {
-        const d = loadDone(); cb.checked ? (d[r.id] = true) : delete d[r.id]; saveDone(d);
+      if (isDone) { cb.disabled = true; cb.title = 'מסומן V באודורו. לביטול יש לשנות את הסטטוס ביומן.'; }
+      cb.onchange = async () => {
+        if (!cb.checked) return;
+        cb.disabled = true;
+        const ok = await setOdoroDone(r.id);
+        if (!ok) alert('לא הצלחתי לסמן V באודורו לתור הזה. אפשר לסמן ידנית ביומן.');
         refreshBadges(); updatePhoneBtn(); renderPhonePop();
       };
       const phone = mobileOf(r) || (r.phone1 || r.phone2 || '').replace(/\D/g, '');
@@ -648,12 +666,12 @@
       el('div', { class: 'oh-body' },
         el('label', { class: 'oh-row' }, onlyOpenCb, ' הצג רק מה שלא טופל'),
         list,
-        el('div', { class: 'oh-hint' }, 'סימון "טופל" נשמר במחשב הזה בלבד.')));
+        el('div', { class: 'oh-hint' }, '"טופל" = V ירוק של אודורו. סימון כאן מסמן V גם ביומן.')));
   }
   updatePhoneBtn();
   injectCheckboxes();
   let injTimer;
   new MutationObserver(() => { clearTimeout(injTimer); injTimer = setTimeout(injectCheckboxes, 300); })
-    .observe(document.body, { childList: true, subtree: true });
+    .observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-status', 'src'] });
 })();
 
